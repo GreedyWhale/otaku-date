@@ -2,6 +2,11 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import dynamicRem from '@/utils/dynamicRem'
+import 'normalize.css'
+import '@/assets/reset.scss'
+
+dynamicRem()
 
 Vue.config.productionTip = false
 
