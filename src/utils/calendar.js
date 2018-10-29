@@ -1,11 +1,16 @@
 class Calendar {
   constructor () {
-    this.weekTable = {
-      cn: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
-      cns: ['日', '一', '二', '三', '四', '五', '六'],
-      en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    this.dateTable = {
+      cnWeek: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+      cnWeekShort: ['日', '一', '二', '三', '四', '五', '六'],
+      enWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      enMonth: [
+        'January', 'February', 'March', 'April', 'May',
+        'June', 'July', 'August', 'September', 'October',
+        'November', 'December'
+      ]
     }
-    this.currentDate = this.getDateArr()
+    this.oneDayMilliseconds = 86400000
   }
 
   // 获取每月的天数
@@ -18,18 +23,33 @@ class Calendar {
     return new Date(year, month - 1, day).getDay()
   }
 
-  // 获取日期数组
-  getDateArr (dateStr) {
+  // 将时间格式化成(xx/xx/xx)
+  localDay (dateStr) {
     const date = dateStr ? new Date(dateStr) : new Date()
-    return [date.getFullYear(), this.zeroize(date.getMonth() + 1), this.zeroize(date.getDate())]
+    return `${date.getFullYear()}/${this.zeroize(date.getMonth() + 1)}/${this.zeroize(date.getDate())}`
   }
-
+  // 补零
   zeroize (num) {
     num = parseInt(num, 10)
     return num < 10 ? `0${num}` : num
   }
+  // 获取距离某天n天之后的日期
+  getDaySpace (date, days) {
+    const targetDays = new Date(date).getTime()
+    return this.localDay(new Date(targetDays + (days * this.oneDayMilliseconds)))
+  }
 
-  setDataList (year = this.currentDate[0], month = this.currentDate[1]) {
+  setDateListItem ({ year, month, date, dateTableIndex }) {
+    return {
+      dateStamp: this.localDay(`${year}-${month}-${date}`),
+      date,
+      cnWeek: this.dateTable.cnWeek[dateTableIndex],
+      cnWeekShort: this.dateTable.cnWeekShort[dateTableIndex],
+      enWeek: this.dateTable.enWeek[dateTableIndex],
+      enMonth: this.dateTable.enMonth[month - 1]
+    }
+  }
+  setDateList (year = new Date().getFullYear(), month = new Date().getMonth() + 1) {
     const currentMonthDays = this.getMonthDays(year, month)
     const firstDayInCurrentMonth = this.getWeekday(year, month, 1)
     const dateList = []
@@ -42,25 +62,27 @@ class Calendar {
       const prveMonthDays = this.getMonthDays(currentYear, prevMonth)
       for (let i = firstDayInCurrentMonth - 1; i >= 0; i -= 1) {
         const index = this.getWeekday(currentYear, prevMonth, prveMonthDays - i)
-        dateList.push({
-          dateStamp: this.getDateArr(`${currentYear}-${prevMonth}-${prveMonthDays - i}`).join('/'),
-          date: prveMonthDays - i,
-          cn: this.weekTable.cn[index],
-          cns: this.weekTable.cns[index],
-          en: this.weekTable.en[index]
-        })
+        dateList.push(
+          this.setDateListItem({
+            year: currentYear,
+            month: prevMonth,
+            date: prveMonthDays - i,
+            dateTableIndex: index
+          })
+        )
       }
     }
     // 当月日期添加
     for (let i = 0; i < currentMonthDays; i += 1) {
       const index = this.getWeekday(year, month, 1 + i)
-      dateList.push({
-        dateStamp: this.getDateArr(`${year}-${month}-${i + 1}`).join('/'),
-        date: i + 1,
-        cn: this.weekTable.cn[index],
-        cns: this.weekTable.cns[index],
-        en: this.weekTable.en[index]
-      })
+      dateList.push(
+        this.setDateListItem({
+          year,
+          month,
+          date: i + 1,
+          dateTableIndex: index
+        })
+      )
     }
 
     const currentDateListLen = dateList.length
@@ -73,13 +95,14 @@ class Calendar {
       const currentYear = isNextYear ? year + 1 : year
       for (let i = 0; i < diff; i += 1) {
         const index = this.getWeekday(currentYear, nextMonth, 1 + i)
-        dateList.push({
-          dateStamp: this.getDateArr(`${currentYear}-${nextMonth}-${i + 1}`).join('/'),
-          date: i + 1,
-          cn: this.weekTable.cn[index],
-          cns: this.weekTable.cns[index],
-          en: this.weekTable.en[index]
-        })
+        dateList.push(
+          this.setDateListItem({
+            year: currentYear,
+            month: nextMonth,
+            date: i + 1,
+            dateTableIndex: index
+          })
+        )
       }
     }
 

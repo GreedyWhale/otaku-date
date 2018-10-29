@@ -5,6 +5,7 @@ import store from './store'
 import dynamicRem from '@/utils/dynamicRem'
 import 'normalize.css'
 import '@/assets/reset.scss'
+import '@/assets/icon-svg.js'
 
 dynamicRem()
 
