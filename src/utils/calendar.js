@@ -14,12 +14,12 @@ class Calendar {
   }
 
   // 获取每月的天数
-  getMonthDays (year, month) {
+  getOneMonthDays (year, month) {
     return new Date(year, month, 0).getDate()
   }
 
   // 获取星期数
-  getWeekday (year, month, day) {
+  getDayOfWeek (year, month, day) {
     return new Date(year, month - 1, day).getDay()
   }
 
@@ -50,8 +50,8 @@ class Calendar {
     }
   }
   setDateList (year = new Date().getFullYear(), month = new Date().getMonth() + 1) {
-    const currentMonthDays = this.getMonthDays(year, month)
-    const firstDayInCurrentMonth = this.getWeekday(year, month, 1)
+    const currentMonthDays = this.getOneMonthDays(year, month)
+    const firstDayInCurrentMonth = this.getDayOfWeek(year, month, 1)
     const dateList = []
 
     // 如果当前月不是从星期日开始，从上个月补全
@@ -59,9 +59,9 @@ class Calendar {
       const isPrveYear = (month - 1) === 0
       const prevMonth = isPrveYear ? 12 : month - 1
       const currentYear = isPrveYear ? year - 1 : year
-      const prveMonthDays = this.getMonthDays(currentYear, prevMonth)
+      const prveMonthDays = this.getOneMonthDays(currentYear, prevMonth)
       for (let i = firstDayInCurrentMonth - 1; i >= 0; i -= 1) {
-        const index = this.getWeekday(currentYear, prevMonth, prveMonthDays - i)
+        const index = this.getDayOfWeek(currentYear, prevMonth, prveMonthDays - i)
         dateList.push(
           this.setDateListItem({
             year: currentYear,
@@ -74,7 +74,7 @@ class Calendar {
     }
     // 当月日期添加
     for (let i = 0; i < currentMonthDays; i += 1) {
-      const index = this.getWeekday(year, month, 1 + i)
+      const index = this.getDayOfWeek(year, month, 1 + i)
       dateList.push(
         this.setDateListItem({
           year,
@@ -94,7 +94,7 @@ class Calendar {
       const nextMonth = isNextYear ? 1 : month + 1
       const currentYear = isNextYear ? year + 1 : year
       for (let i = 0; i < diff; i += 1) {
-        const index = this.getWeekday(currentYear, nextMonth, 1 + i)
+        const index = this.getDayOfWeek(currentYear, nextMonth, 1 + i)
         dateList.push(
           this.setDateListItem({
             year: currentYear,
